@@ -322,3 +322,23 @@ def test_ufloat():
         )
         == "1.234(12)(+34/-56)"
     )
+
+
+def test_pyerrors():
+    """Test that pyerrors Obs instances have their errors correctly included."""
+
+    obs = Obs([[1.0, 0.9, 1.0, 1.1, 1.0]], ["sample"])
+    obs.gamma_method()
+    assert (
+        formatter.format_multiple_errors(
+            obs, (0.034, 0.056), significant_figures=2, abbreviate=True
+        )
+        == "1.000(36)(+34/-56)"
+    )
+
+
+def test_pyerrors_pre_gamma():
+    """Test that pyerrors Obs instances that have not yet had gamma_method() applied refuse to cooperate."""
+    obs = Obs([[1.0, 0.9, 1.0, 1.1, 1.0]], ["sample"])
+    with pytest.raises(ValueError):
+        formatter.format_multiple_errors(obs)

@@ -23,6 +23,10 @@ def _normalize_integrated_errors(value, errors):
         errors = [value.std_dev] + errors
         value = value.nominal_value
     elif hasattr(value, "value") and hasattr(value, "dvalue"):
+        if value.dvalue == 0.0:
+            raise ValueError(
+                "pyerrors will not give an error before calling .gamma_method()"
+            )
         errors = [value.dvalue] + errors
         value = value.value
 
