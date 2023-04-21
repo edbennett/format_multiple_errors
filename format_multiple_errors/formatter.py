@@ -29,8 +29,9 @@ def _normalize_integrated_errors(value, errors):
     return value, errors
 
 
-def _get_smallest(errors):
-    """Given a list of errors (number or tuples of two numbers), find the smallest number."""
+def _get_collective(errors, collective):
+    """Given a list of errors (number or tuples of two numbers),
+    flatten it and apply a collective operation."""
 
     flat_errors = []
     for error in errors:
@@ -39,7 +40,12 @@ def _get_smallest(errors):
         except (TypeError, ValueError):
             flat_errors.append(error)
 
-    return min(flat_errors)
+    return collective(flat_errors)
+
+
+def _get_smallest(errors):
+    """Given a list of errors (number or tuples of two numbers), find the smallest number."""
+    return _get_collective(errors, min)
 
 
 def _get_length_value(value, errors, length_control):
@@ -47,13 +53,13 @@ def _get_length_value(value, errors, length_control):
 
     if length_control == "central":
         return value
-    elif length_control == "smallest":
+    if length_control == "smallest":
         return _get_smallest(errors)
-    else:
-        raise ValueError(
-            f"{length_control} is not a value option for length_control."
-            '(Available options are "smallest", "central".)'
-        )
+
+    raise ValueError(
+        f"{length_control} is not a value option for length_control."
+        '(Available options are "smallest", "central".)'
+    )
 
 
 def _first_digit(value):
@@ -63,10 +69,10 @@ def _first_digit(value):
     of the decimal point have a negative position.
     Return 0 for a null value.
     """
-    try:
-        return int(math.floor(math.log10(abs(value))))
-    except ValueError:  # Case of value == 0
+    if value == 0:
         return 0
+
+    return int(math.floor(math.log10(abs(value))))
 
 
 def _map_errors(f, errors):
@@ -76,13 +82,13 @@ def _map_errors(f, errors):
         try:
             upper, lower = error
             ret.append((f(upper), f(lower)))
-        except TypeError as ex:
+        except TypeError:
             ret.append(f(error))
 
     return ret
 
 
-def _join_numbers(formatted_numbers, abbreviate, latex):
+def _join_numbers(formatted_numbers, abbreviate, latex, exponent=0):
     """Take a list of `formatted_numbers`, and join them to form a full formatted string."""
 
     elements = formatted_numbers[:1]
@@ -112,7 +118,75 @@ def _join_numbers(formatted_numbers, abbreviate, latex):
                 upper, lower = error
                 elements.append(f" (+{upper} / -{lower})")
 
+    if exponent:
+        if not abbreviate:
+            # Errors and central value must be grouped together
+            # so the exponent applies to all
+            elements = ["("] + elements + [")"]
+        if latex:
+            elements.append(f" \\times 10^{{{exponent}}}")
+        else:
+            elements.append(f"e{exponent}")
+
     return "".join(elements)
+
+
+def _normalize(value, errors):
+    """
+    Divides `value` and all elements of `errors` by a common power of 10
+    such that `value` is in [1, 10).
+
+    Arguments:
+
+        value: a central value
+
+        errors: a list of errors, either numbers or tuples of two numbers
+
+    Returns:
+
+        value: the normalized central value
+
+        errors: the normalized errors
+
+        exponent: the power of 10 by which the values have been multiplied
+    """
+
+    if value == 0:
+        exponent = _first_digit(_get_collective(errors, max))
+    else:
+        exponent = _first_digit(value)
+
+    return (
+        value / 10**exponent,
+        _map_errors(lambda error: error / 10**exponent, errors),
+        exponent,
+    )
+
+
+def _abbreviate_single_error(error, decimal_places):
+    """
+    Take a single `error` and return its correct abbreviation to the given number of `decimal_places`.
+    """
+    if error >= 1:
+        return f"{error:.0{decimal_places}f}"
+
+    return str(int(round(error * 10**decimal_places)))
+
+
+def _unabbreviated_single_error(error, decimal_places):
+    """
+    Take a single `error` and return its correct unabbreviated format
+    to the given number of `decimal_places`.
+    """
+
+    rounded_error = round(error, decimal_places)
+    if rounded_error == 0:
+        if decimal_places > 0:
+            return "0.0"
+
+        return "0"
+
+    return f"{rounded_error:.0{decimal_places}f}"
 
 
 def format_multiple_errors(
@@ -158,20 +232,36 @@ def format_multiple_errors(
         Format the numbers in LaTeX form rather than plain text.
     """
 
-    value, errors = _normalize_integrated_errors(value, errors)
-    length_value = _get_length_value(value, errors, length_control)
-    all_values = [value] + list(errors)
+    value, errors = _normalize_integrated_errors(value, list(errors))
+    exponent = 0
+    if exponential:
+        value, errors, exponent = _normalize(value, errors)
 
+    length_value = _get_length_value(value, errors, length_control)
     first_digit_index = _first_digit(length_value)
+
+    all_values = [value] + list(errors)
+    decimal_places = significant_figures - first_digit_index - 1
+
     if first_digit_index + 1 >= significant_figures and not exponential:
         # We don't need decimals
         formatted_numbers = _map_errors(
-            lambda n: str(int(round(n, significant_figures - first_digit_index - 1))),
+            lambda value: str(int(round(value, decimal_places))),
             all_values,
         )
-        return _join_numbers(formatted_numbers, abbreviate=abbreviate, latex=latex)
+    elif abbreviate:
+        formatted_errors = _map_errors(
+            lambda error: _abbreviate_single_error(error, decimal_places), errors
+        )
+        formatted_numbers = [f"{value:.0{decimal_places}f}"] + formatted_errors
     else:
-        raise NotImplementedError
+        formatted_numbers = _map_errors(
+            lambda error: _unabbreviated_single_error(error, decimal_places), all_values
+        )
+
+    return _join_numbers(
+        formatted_numbers, exponent=exponent, abbreviate=abbreviate, latex=latex
+    )
 
 
 if __name__ == "__main__":
