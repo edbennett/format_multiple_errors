@@ -282,6 +282,7 @@ def test_long_errors(args):
 
 @pytest.mark.parametrize("exponent", range(-5, 6))
 def test_normalize(exponent):
+    """Test that normalization works correctly in typical cases."""
     expect_value = 1.234
     expect_errors = [0.01, (0.123, 0.234), 0.49]
 
@@ -296,6 +297,7 @@ def test_normalize(exponent):
 
 
 def test_normalize_zero():
+    """Test that normalization works correctly even when the central value is zero."""
     errors = [0.01, (0.123, 0.234), 0.49]
 
     assert formatter._normalize(0.0, errors) == (
@@ -307,6 +309,10 @@ def test_normalize_zero():
 
 @pytest.mark.xfail
 def test_rounding():
+    """Test that the correct number of significant figures is given
+    even when rounding changes where the significant figure boundary is.
+
+    (Currently not implemented.)"""
     assert (
         formatter.format_multiple_errors(
             1.0, 0.0999, significant_figures=2, abbreviate=True
@@ -316,6 +322,7 @@ def test_rounding():
 
 
 def test_ufloat():
+    """Test that UFloats have their errors correctly included."""
     assert (
         formatter.format_multiple_errors(
             ufloat(1.234, 0.012), (0.034, 0.056), significant_figures=2, abbreviate=True
