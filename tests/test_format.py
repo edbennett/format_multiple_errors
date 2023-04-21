@@ -349,3 +349,17 @@ def test_pyerrors_pre_gamma():
     obs = Obs([[1.0, 0.9, 1.0, 1.1, 1.0]], ["sample"])
     with pytest.raises(ValueError):
         formatter.format_multiple_errors(obs)
+
+
+def test_zero_error():
+    """Test that a zero error is correctly handled."""
+    assert (
+        formatter.format_multiple_errors(1.234, 0, significant_figures=3)
+        == "1.23 ± 0.0"
+    )
+
+
+def test_invalid_control():
+    """Test that passing an invalid length control fails."""
+    with pytest.raises(ValueError):
+        formatter.format_multiple_errors(1.234, 0.1, length_control="foobar")
