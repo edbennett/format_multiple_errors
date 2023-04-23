@@ -33,23 +33,31 @@ def _normalize_integrated_errors(value, errors):
     return value, errors
 
 
-def _get_collective(errors, collective):
+def _flatten_errors(errors, exclude=[]):
     """Given a list of errors (number or tuples of two numbers),
-    flatten it and apply a collective operation."""
+    flatten it to a list of numbers."""
 
     flat_errors = []
     for error in errors:
         try:
-            flat_errors.extend(error)
+            for value in error:
+                if value not in exclude:
+                    flat_errors.append(value)
         except (TypeError, ValueError):
-            flat_errors.append(error)
+            if error not in exclude:
+                flat_errors.append(error)
 
-    return collective(flat_errors)
+    return flat_errors
 
 
 def _get_smallest(errors):
-    """Given a list of errors (number or tuples of two numbers), find the smallest number."""
-    return _get_collective(errors, min)
+    """Given a list of errors (number or tuples of two numbers),
+    find the smallest number."""
+    flat_errors = _flatten_errors(errors, exclude=[0, 0.0])
+    if not flat_errors:
+        return None
+
+    return min(flat_errors)
 
 
 def _get_length_value(value, errors, length_control):
@@ -58,7 +66,11 @@ def _get_length_value(value, errors, length_control):
     if length_control == "central":
         return value
     if length_control == "smallest":
-        return _get_smallest(errors)
+        length = _get_smallest(errors)
+        if length is None:
+            return value
+
+        return length
 
     raise ValueError(
         f"{length_control} is not a value option for length_control."
@@ -156,7 +168,7 @@ def _normalize(value, errors):
     """
 
     if value == 0:
-        exponent = _first_digit(_get_collective(errors, max))
+        exponent = _first_digit(max(_flatten_errors(errors)))
     else:
         exponent = _first_digit(value)
 

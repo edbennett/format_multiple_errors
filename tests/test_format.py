@@ -347,11 +347,21 @@ def test_pyerrors_pre_gamma():
         formatter.format_multiple_errors(obs)
 
 
-def test_zero_error():
-    """Test that a zero error is correctly handled."""
+def test_one_error_zero():
+    """Test that a zero error is correctly ignored when there are other errors."""
     assert (
-        formatter.format_multiple_errors(1.234, 0, significant_figures=3)
-        == "1.23 ± 0.0"
+        formatter.format_multiple_errors(
+            0.001234, 0.000056, (0.0, 0.000789), abbreviate=True
+        )
+        == "0.001234(56)(+0/-789)"
+    )
+
+
+def test_zero_error_only():
+    """Test that a zero error is correctly ignored when there are no other errors."""
+    assert (
+        formatter.format_multiple_errors(0.001234, 0, significant_figures=3)
+        == "0.00123 ± 0.0"
     )
 
 
