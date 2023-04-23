@@ -45,7 +45,7 @@ integer_tests = [
         length_control="central",
         abbreviate=True,
         latex=True,
-        expect=r"12000(7000)({}^{+1000}_{-1000})",
+        expect=r"12000(7000)({}^{1000}_{1000})",
     ),
     IntegerTestCase(
         length_control="central", abbreviate=True, expect="12000(7000)(+1000/-1000)"
@@ -57,7 +57,7 @@ integer_tests = [
     ),
     IntegerTestCase(length_control="central", expect="12000 ± 7000 (+1000 / -1000)"),
     IntegerTestCase(
-        abbreviate=True, latex=True, expect=r"12300(6800)({}^{+1000}_{-1200})"
+        abbreviate=True, latex=True, expect=r"12300(6800)({}^{1000}_{1200})"
     ),
     IntegerTestCase(abbreviate=True, expect="12300(6800)(+1000/-1200)"),
     IntegerTestCase(latex=True, expect=r"12300 \pm 6800 {}^{+1000}_{-1200}"),
@@ -91,7 +91,7 @@ decimal_tests = [
         length_control="central",
         abbreviate=True,
         latex=True,
-        expect=r"0.0012(7)({}^{+1}_{-0})",
+        expect=r"0.0012(7)({}^{1}_{0})",
     ),
     SmallTestCase(
         length_control="central",
@@ -102,9 +102,7 @@ decimal_tests = [
         length_control="central", abbreviate=True, expect=r"0.0012(7)(+1/-0)"
     ),
     SmallTestCase(length_control="central", expect=r"0.0012 ± 0.0007 (+0.0001 / -0.0)"),
-    SmallTestCase(
-        abbreviate=True, latex=True, expect=r"0.001234(679)({}^{+101}_{-12})"
-    ),
+    SmallTestCase(abbreviate=True, latex=True, expect=r"0.001234(679)({}^{101}_{12})"),
     SmallTestCase(
         latex=True, expect=r"0.001234 \pm 0.000679 {}^{+0.000101}_{-0.000012}"
     ),
@@ -114,7 +112,7 @@ decimal_tests = [
         length_control="central",
         abbreviate=True,
         latex=True,
-        expect=r"1200(0)({}^{+0}_{-100})",
+        expect=r"1200(0)({}^{0}_{100})",
     ),
     LargeTestCase(
         length_control="central", latex=True, expect=r"1200 \pm 0 {}^{+0}_{-100}"
@@ -123,9 +121,7 @@ decimal_tests = [
         length_control="central", abbreviate=True, expect=r"1200(0)(+0/-100)"
     ),
     LargeTestCase(length_control="central", expect=r"1200 ± 0 (+0 / -100)"),
-    LargeTestCase(
-        abbreviate=True, latex=True, expect=r"1234.5(6.7)({}^{+8.9}_{-101.1})"
-    ),
+    LargeTestCase(abbreviate=True, latex=True, expect=r"1234.5(6.7)({}^{8.9}_{101.1})"),
     LargeTestCase(latex=True, expect=r"1234.5 \pm 6.7 {}^{+8.9}_{-101.1}"),
     LargeTestCase(abbreviate=True, expect=r"1234.5(6.7)(+8.9/-101.1)"),
     LargeTestCase(expect=r"1234.5 ± 6.7 (+8.9 / -101.1)"),
@@ -140,7 +136,7 @@ exponential_tests = [
         length_control="central",
         abbreviate=True,
         latex=True,
-        expect=r"1.2(7)({}^{+1}_{-0}) \times 10^{-3}",
+        expect=r"1.2(7)({}^{1}_{0}) \times 10^{-3}",
     ),
     SmallExpTestCase(
         length_control="central",
@@ -154,7 +150,7 @@ exponential_tests = [
     SmallExpTestCase(
         abbreviate=True,
         latex=True,
-        expect=r"1.234(679)({}^{+101}_{-12}) \times 10^{-3}",
+        expect=r"1.234(679)({}^{101}_{12}) \times 10^{-3}",
     ),
     SmallExpTestCase(
         latex=True, expect=r"(1.234 \pm 0.679 {}^{+0.101}_{-0.012}) \times 10^{-3}"
@@ -165,7 +161,7 @@ exponential_tests = [
         length_control="central",
         abbreviate=True,
         latex=True,
-        expect=r"1.2(0)({}^{+0}_{-1})(1.2)",
+        expect=r"1.2(0)({}^{0}_{1})(1.2)",
     ),
     MedExpTestCase(
         length_control="central",
@@ -177,7 +173,7 @@ exponential_tests = [
     ),
     MedExpTestCase(length_control="central", expect=r"1.2 ± 0.0 (+0.0 / -0.1) ± 1.2"),
     MedExpTestCase(
-        abbreviate=True, latex=True, expect=r"1.2345(67)({}^{+89}_{-1011})(1.2131)"
+        abbreviate=True, latex=True, expect=r"1.2345(67)({}^{89}_{1011})(1.2131)"
     ),
     MedExpTestCase(
         latex=True, expect=r"1.2345 \pm 0.0067 {}^{+0.0089}_{-0.1011} \pm 1.2131"
@@ -188,7 +184,7 @@ exponential_tests = [
         length_control="central",
         abbreviate=True,
         latex=True,
-        expect=r"1.2(0)({}^{+0}_{-1}) \times 10^{3}",
+        expect=r"1.2(0)({}^{0}_{1}) \times 10^{3}",
     ),
     LargeExpTestCase(
         length_control="central",
@@ -202,7 +198,7 @@ exponential_tests = [
     LargeExpTestCase(
         abbreviate=True,
         latex=True,
-        expect=r"1.2345(67)({}^{+89}_{-1011}) \times 10^{3}",
+        expect=r"1.2345(67)({}^{89}_{1011}) \times 10^{3}",
     ),
     LargeExpTestCase(
         latex=True, expect=r"(1.2345 \pm 0.0067 {}^{+0.0089}_{-0.1011}) \times 10^{3}"
@@ -222,7 +218,7 @@ long_error_tests = [
         length_control="central",
         abbreviate=True,
         latex=True,
-        expect=r"1.2(1)({}^{+0}_{-0})",
+        expect=r"1.2(1)({}^{0}_{0})",
     ),
     LongErrorTestCase(
         length_control="central", latex=True, expect=r"1.2 \pm 0.1 {}^{+0.0}_{-0.0}"
@@ -232,7 +228,7 @@ long_error_tests = [
     ),
     LongErrorTestCase(length_control="central", expect=r"1.2 ± 0.1 (+0.0 / -0.0)"),
     LongErrorTestCase(
-        abbreviate=True, latex=True, expect=r"1.2345(1235)({}^{+99}_{-102})"
+        abbreviate=True, latex=True, expect=r"1.2345(1235)({}^{99}_{102})"
     ),
     LongErrorTestCase(latex=True, expect=r"1.2345 \pm 0.1235 {}^{+0.0099}_{-0.0102}"),
     LongErrorTestCase(abbreviate=True, expect=r"1.2345(1235)(+99/-102)"),

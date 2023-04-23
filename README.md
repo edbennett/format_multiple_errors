@@ -2,7 +2,7 @@
 
 Intended to make it easy to format numbers like
 
-$$1.623(11)({}^{+3}_{-4})\times 10^{-7}$$
+$$1.623(11)({}^{3}_{4})\times 10^{-7}$$
 
 or
 

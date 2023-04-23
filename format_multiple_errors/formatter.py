@@ -102,7 +102,7 @@ def _join_numbers(formatted_numbers, abbreviate, latex, exponent=0):
                 elements.append(f"({error})")
             else:
                 upper, lower = error
-                elements.append(f"({{}}^{{+{upper}}}_{{-{lower}}})")
+                elements.append(f"({{}}^{{{upper}}}_{{{lower}}})")
         elif abbreviate:
             if isinstance(error, str):
                 elements.append(f"({error})")
