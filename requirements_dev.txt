@@ -1,4 +1,6 @@
+pre-commit
 pyerrors
 pylint
 pytest
 uncertainties
+-e .

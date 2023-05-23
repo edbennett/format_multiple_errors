@@ -92,3 +92,25 @@ Instances of `pyerrors.Obs` must already have an uncertainty computed
 (must have had the `.gamma_method()` method called on them)
 before being passed to `format_multiple_errors`,
 otherwise an error is raised.
+
+
+## Development
+
+To be able to run the test suite,
+create a virtual environment using the tooling of your choice,
+and then install the developer dependencies:
+
+    pip install -r requirements_dev.txt
+
+
+The test suite can then be run by calling
+
+    pytest
+
+Before committing,
+you should ensure that the repository's pre-commit hooks are installed:
+
+    pre-commit install
+
+Then some basic code quality checks will be run by Git
+before it accepts your commit.
