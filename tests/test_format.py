@@ -325,7 +325,7 @@ def test_rounding():
 def test_ufloat():
     """Test that UFloats have their errors correctly included."""
     assert (
-        formatter.format_multiple_errors(
+        format_multiple_errors(
             ufloat(1.234, 0.012), (0.034, 0.056), significant_figures=2, abbreviate=True
         )
         == "1.234(12)(+34/-56)"
@@ -338,7 +338,7 @@ def test_pyerrors():
     obs = Obs([[1.0, 0.9, 1.0, 1.1, 1.0]], ["sample"])
     obs.gamma_method()
     assert (
-        formatter.format_multiple_errors(
+        format_multiple_errors(
             obs, (0.034, 0.056), significant_figures=2, abbreviate=True
         )
         == "1.000(36)(+34/-56)"
@@ -353,28 +353,23 @@ def test_pyerrors_pre_gamma():
 
     obs = Obs([[1.0, 0.9, 1.0, 1.1, 1.0]], ["sample"])
     with pytest.raises(ValueError):
-        formatter.format_multiple_errors(obs)
+        format_multiple_errors(obs)
 
 
 def test_one_error_zero():
     """Test that a zero error is correctly ignored when there are other errors."""
     assert (
-        formatter.format_multiple_errors(
-            0.001234, 0.000056, (0.0, 0.000789), abbreviate=True
-        )
+        format_multiple_errors(0.001234, 0.000056, (0.0, 0.000789), abbreviate=True)
         == "0.001234(56)(+0/-789)"
     )
 
 
 def test_zero_error_only():
     """Test that a zero error is correctly ignored when there are no other errors."""
-    assert (
-        formatter.format_multiple_errors(0.001234, 0, significant_figures=3)
-        == "0.00123 ± 0.0"
-    )
+    assert format_multiple_errors(0.001234, 0, significant_figures=3) == "0.00123 ± 0.0"
 
 
 def test_invalid_control():
     """Test that passing an invalid length control fails."""
     with pytest.raises(ValueError):
-        formatter.format_multiple_errors(1.234, 0.1, length_control="foobar")
+        format_multiple_errors(1.234, 0.1, length_control="foobar")
