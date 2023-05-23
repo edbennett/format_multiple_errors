@@ -202,6 +202,18 @@ def _unabbreviated_single_error(error, decimal_places):
     return f"{rounded_error:.0{decimal_places}f}"
 
 
+def get_rounding_indices(length_value, significant_figures):
+    """
+    Get the index of the first digit of length_value,
+    and from it the number of decimal places corresponding to the
+    given value of significant_figures.
+    """
+
+    first_digit_index = _first_digit(length_value)
+    decimal_places = significant_figures - first_digit_index - 1
+    return first_digit_index, decimal_places
+
+
 def format_multiple_errors(
     value,
     *errors,
@@ -253,10 +265,17 @@ def format_multiple_errors(
         value, errors, exponent = _normalize(value, errors)
 
     length_value = _get_length_value(value, errors, length_control)
-    first_digit_index = _first_digit(length_value)
+    first_digit_index, decimal_places = get_rounding_indices(
+        length_value, significant_figures
+    )
+
+    # Ensure that values that when rounded will gain an extra digit format correctly
+    # (E.g. 0.0999 to 2sf is 0.10.)
+    first_digit_index, decimal_places = get_rounding_indices(
+        round(length_value, decimal_places), significant_figures
+    )
 
     all_values = [value] + list(errors)
-    decimal_places = significant_figures - first_digit_index - 1
 
     if first_digit_index + 1 >= significant_figures and not exponential:
         # We don't need decimals

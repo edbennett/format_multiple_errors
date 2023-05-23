@@ -308,18 +308,37 @@ def test_normalize_zero():
     )
 
 
-@pytest.mark.xfail
-def test_rounding():
-    """Test that the correct number of significant figures is given
-    even when rounding changes where the significant figure boundary is.
+RoundingTestCase = partial(
+    FormatTestCase,
+    name="rounding",
+    value=1.0,
+    abbreviate=True,
+)
+rounding_tests = [
+    RoundingTestCase(errors=[0.0999], significant_figures=2, expect="1.00(10)"),
+    RoundingTestCase(errors=[0.09999], significant_figures=3, expect="1.000(100)"),
+    RoundingTestCase(errors=[0.099999], significant_figures=4, expect="1.0000(1000)"),
+    RoundingTestCase(
+        errors=[0.0999999], significant_figures=5, expect="1.00000(10000)"
+    ),
+    RoundingTestCase(
+        errors=[0.09999999], significant_figures=6, expect="1.000000(100000)"
+    ),
+    RoundingTestCase(
+        errors=[0.099999999999],
+        significant_figures=10,
+        expect="1.0000000000(1000000000)",
+    ),
+]
 
-    (Currently not implemented.)"""
-    assert (
-        formatter.format_multiple_errors(
-            1.0, 0.0999, significant_figures=2, abbreviate=True
-        )
-        == "1.00(10)"
-    )
+
+@pytest.mark.parametrize("args", rounding_tests, ids=label_testcase)
+def test_rounding(args):
+    """
+    Test that the correct number of significant figures is given
+    even when rounding changes where the significant figure boundary is.
+    """
+    single_test_case(args)
 
 
 def test_ufloat():
