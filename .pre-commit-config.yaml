@@ -13,3 +13,11 @@ repos:
     rev: 23.1.0
     hooks:
     -   id: black
+-   repo: https://github.com/PyCQA/pylint
+    rev: v2.17.4
+    hooks:
+    -   id: pylint
+        additional_dependencies:
+          - pyerrors
+          - pytest
+          - uncertainties
