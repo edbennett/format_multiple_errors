@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""Implementation of multiple error formatting."""
+
 # It would be nice to vectorise this with numpy, but that needs more clever thinking.
 import math
 
@@ -33,7 +35,7 @@ def _normalize_integrated_errors(value, errors):
     return value, errors
 
 
-def _flatten_errors(errors, exclude=[]):
+def _flatten_errors(errors, exclude=frozenset()):
     """Given a list of errors (number or tuples of two numbers),
     flatten it to a list of numbers."""
 
@@ -61,7 +63,10 @@ def _get_smallest(errors):
 
 
 def _get_length_value(value, errors, length_control):
-    """Get the value that will be controlling the length, from either the central `value` or the list of `errors`."""
+    """
+    Get the value that will be controlling the length,
+    from either the central `value` or the list of `errors`.
+    """
 
     if length_control == "central":
         return value
@@ -91,15 +96,15 @@ def _first_digit(value):
     return int(math.floor(math.log10(abs(value))))
 
 
-def _map_errors(f, errors):
+def _map_errors(func, errors):
     """Map a function `f` across a list of `errors` (numbers or tuples of numbers)."""
     ret = []
     for error in errors:
         try:
             upper, lower = error
-            ret.append((f(upper), f(lower)))
+            ret.append((func(upper), func(lower)))
         except TypeError:
-            ret.append(f(error))
+            ret.append(func(error))
 
     return ret
 
@@ -107,32 +112,23 @@ def _map_errors(f, errors):
 def _join_numbers(formatted_numbers, abbreviate, latex, exponent=0):
     """Take a list of `formatted_numbers`, and join them to form a full formatted string."""
 
+    # Dict indexed by the tuple (abbreviate, latex, [is single-component])
+    formatters = {
+        (True, True, True): "({error})",
+        (True, True, False): "({{}}^{{{error[0]}}}_{{{error[1]}}})",
+        (True, False, True): "({error})",
+        (True, False, False): "(+{error[0]}/-{error[1]})",
+        (False, True, True): " \\pm {error}",
+        (False, True, False): " {{}}^{{+{error[0]}}}_{{-{error[1]}}}",
+        (False, False, True): " ± {error}",
+        (False, False, False): " (+{error[0]} / -{error[1]})",
+    }
+
     elements = formatted_numbers[:1]
     for error in formatted_numbers[1:]:
-        if abbreviate and latex:
-            if isinstance(error, str):
-                elements.append(f"({error})")
-            else:
-                upper, lower = error
-                elements.append(f"({{}}^{{{upper}}}_{{{lower}}})")
-        elif abbreviate:
-            if isinstance(error, str):
-                elements.append(f"({error})")
-            else:
-                upper, lower = error
-                elements.append(f"(+{upper}/-{lower})")
-        elif latex:
-            if isinstance(error, str):
-                elements.append(f" \\pm {error}")
-            else:
-                upper, lower = error
-                elements.append(f" {{}}^{{+{upper}}}_{{-{lower}}}")
-        else:
-            if isinstance(error, str):
-                elements.append(f" ± {error}")
-            else:
-                upper, lower = error
-                elements.append(f" (+{upper} / -{lower})")
+        elements.append(
+            formatters[abbreviate, latex, isinstance(error, str)].format(error=error)
+        )
 
     if exponent:
         if not abbreviate:
@@ -181,7 +177,8 @@ def _normalize(value, errors):
 
 def _abbreviate_single_error(error, decimal_places):
     """
-    Take a single `error` and return its correct abbreviation to the given number of `decimal_places`.
+    Take a single `error` and return its correct abbreviation
+    to the given number of `decimal_places`.
     """
     if error >= 1:
         return f"{error:.0{decimal_places}f}"
@@ -230,8 +227,10 @@ def format_multiple_errors(
     length_control (default: "smallest"):
         The variable to use for controlling the length of the printed number.
         Options:
-            "smallest": The smallest uncertainty is printed with `significant_figures` significant figures.
-            "central": The central `value` is printed with `significant_figures` significant figures.
+            "smallest": The smallest uncertainty is printed
+                        with `significant_figures` significant figures.
+            "central": The central `value` is printed
+                       with `significant_figures` significant figures.
 
     significant_figures (default: 2):
         The number of significant figures to format.

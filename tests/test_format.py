@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# We will explicitly test private members, so don't want pylint to notice
+# pylint: disable=W0212
+
+"""Tests for format_multiple_errors."""
+
 from collections import namedtuple
 from functools import partial
 
@@ -341,7 +346,11 @@ def test_pyerrors():
 
 
 def test_pyerrors_pre_gamma():
-    """Test that pyerrors Obs instances that have not yet had gamma_method() applied refuse to cooperate."""
+    """
+    Test that pyerrors Obs instances that have not yet
+    had gamma_method() applied refuse to cooperate.
+    """
+
     obs = Obs([[1.0, 0.9, 1.0, 1.1, 1.0]], ["sample"])
     with pytest.raises(ValueError):
         formatter.format_multiple_errors(obs)
