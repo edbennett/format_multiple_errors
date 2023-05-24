@@ -1,5 +1,8 @@
 # format_multiple_errors
 
+[![Run tests](https://github.com/edbennett/format_multiple_errors/actions/workflows/pytest.yaml/badge.svg)](https://github.com/edbennett/format_multiple_errors/actions/workflows/pytest.yaml)
+[![Code quality](https://github.com/edbennett/format_multiple_errors/actions/workflows/codequality.yaml/badge.svg)](https://github.com/edbennett/format_multiple_errors/actions/workflows/codequality.yaml)
+
 A small library intended to make it easy to format numbers like
 
 $$1.623(11)({}^{3}_{4})\times 10^{-7}$$
