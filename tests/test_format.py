@@ -383,7 +383,7 @@ def test_one_error_zero():
     )
 
 
-def test_zero_error_only():
+def test_zero_error_only_with_decimal():
     """Test that a zero error is correctly ignored when there are no other errors."""
     assert format_multiple_errors(0.001234, 0, significant_figures=3) == "0.00123 ± 0.0"
 
@@ -392,3 +392,21 @@ def test_invalid_control():
     """Test that passing an invalid length control fails."""
     with pytest.raises(ValueError):
         format_multiple_errors(1.234, 0.1, length_control="foobar")
+
+
+@pytest.mark.parametrize("value", [0, 1])
+def test_zero_error_only_no_decimal(value):
+    """Test that cases with zero error format correctly"""
+
+    assert format_multiple_errors(value, 0, significant_figures=1) == f"{value} ± 0"
+
+
+def test_very_small_error():
+    """Test that errors that end up rounding to zero format correctly."""
+
+    assert (
+        format_multiple_errors(
+            1234.5, 0.1, length_control="central", significant_figures=4
+        )
+        == "1234 ± 0"
+    )
