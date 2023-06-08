@@ -209,8 +209,13 @@ def get_rounding_indices(length_value, significant_figures):
     given value of significant_figures.
     """
 
-    first_digit_index = _first_digit(length_value)
-    decimal_places = significant_figures - first_digit_index - 1
+    # Repeat, as the first pass will break
+    # if the rounding changes the number of significant figures
+    for _ in range(2):
+        first_digit_index = _first_digit(length_value)
+        decimal_places = significant_figures - first_digit_index - 1
+        length_value = round(length_value, decimal_places)
+
     return first_digit_index, decimal_places
 
 
@@ -267,12 +272,6 @@ def format_multiple_errors(
     length_value = _get_length_value(value, errors, length_control)
     first_digit_index, decimal_places = get_rounding_indices(
         length_value, significant_figures
-    )
-
-    # Ensure that values that when rounded will gain an extra digit format correctly
-    # (E.g. 0.0999 to 2sf is 0.10.)
-    first_digit_index, decimal_places = get_rounding_indices(
-        round(length_value, decimal_places), significant_figures
     )
 
     all_values = [value] + list(errors)
