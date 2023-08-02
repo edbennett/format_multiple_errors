@@ -222,6 +222,26 @@ def get_rounding_indices(length_value, significant_figures):
     return first_digit_index, decimal_places
 
 
+def _decimals_required(first_digit_index, significant_figures, exponential):
+    """
+    Determine whether a decimal point is needed to represent a number to a particular precision.
+    """
+    return first_digit_index + 1 < significant_figures or exponential
+
+
+def _format_errors_only(errors, decimal_places, abbreviate):
+    """
+    Return a list of `errors` formatted to the specified number of `decimal_places`.
+    If `abbreviate` is specified, format only the portion of the number needed
+    to express the error.
+    """
+    formatters = {True: _abbreviate_single_error, False: _unabbreviated_single_error}
+
+    return _map_recursive(
+        lambda error: formatters[abbreviate](error, decimal_places), errors
+    )
+
+
 def format_multiple_errors(
     value,
     *errors,
@@ -277,22 +297,14 @@ def format_multiple_errors(
         length_value, significant_figures
     )
 
-    all_values = [value] + list(errors)
-
-    if first_digit_index + 1 >= significant_figures and not exponential:
-        # We don't need decimals
-        formatted_numbers = _map_recursive(
-            lambda value: str(int(round(value, decimal_places))),
-            all_values,
+    if _decimals_required(first_digit_index, significant_figures, exponential):
+        formatted_numbers = [f"{value:.0{decimal_places}f}"] + _format_errors_only(
+            errors, decimal_places, abbreviate
         )
-    elif abbreviate:
-        formatted_errors = _map_recursive(
-            lambda error: _abbreviate_single_error(error, decimal_places), errors
-        )
-        formatted_numbers = [f"{value:.0{decimal_places}f}"] + formatted_errors
     else:
         formatted_numbers = _map_recursive(
-            lambda error: _unabbreviated_single_error(error, decimal_places), all_values
+            lambda value: str(int(round(value, decimal_places))),
+            [value] + list(errors),
         )
 
     return _join_numbers(
