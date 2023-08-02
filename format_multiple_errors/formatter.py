@@ -178,7 +178,7 @@ def _normalize(value, errors):
     )
 
 
-def _abbreviate_single_error(error, decimal_places):
+def _abbreviated_single_error(error, decimal_places):
     """
     Take a single `error` and return its correct abbreviation
     to the given number of `decimal_places`.
@@ -235,7 +235,7 @@ def _format_errors_only(errors, decimal_places, abbreviate):
     If `abbreviate` is specified, format only the portion of the number needed
     to express the error.
     """
-    formatters = {True: _abbreviate_single_error, False: _unabbreviated_single_error}
+    formatters = {True: _abbreviated_single_error, False: _unabbreviated_single_error}
 
     return _map_recursive(
         lambda error: formatters[abbreviate](error, decimal_places), errors
