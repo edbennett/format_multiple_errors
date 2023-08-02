@@ -288,11 +288,13 @@ def test_normalize(exponent):
     expect_errors = [0.01, (0.123, 0.234), 0.49]
 
     value = expect_value * 10**exponent
-    errors = formatter._map_errors(lambda error: error * 10**exponent, expect_errors)
+    errors = formatter._map_recursive(
+        lambda error: error * 10**exponent, expect_errors
+    )
 
     assert formatter._normalize(value, errors) == (
         pytest.approx(expect_value),
-        formatter._map_errors(pytest.approx, expect_errors),
+        formatter._map_recursive(pytest.approx, expect_errors),
         exponent,
     )
 
@@ -303,7 +305,7 @@ def test_normalize_zero():
 
     assert formatter._normalize(0.0, errors) == (
         0.0,
-        formatter._map_errors(lambda error: pytest.approx(error * 10), errors),
+        formatter._map_recursive(lambda error: pytest.approx(error * 10), errors),
         -1,
     )
 

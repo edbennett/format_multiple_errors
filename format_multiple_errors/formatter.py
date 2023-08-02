@@ -2,6 +2,8 @@
 
 """Implementation of multiple error formatting."""
 
+from collections.abc import Sequence
+
 # It would be nice to vectorise this with numpy, but that needs more clever thinking.
 import math
 
@@ -96,17 +98,18 @@ def _first_digit(value):
     return int(math.floor(math.log10(abs(value))))
 
 
-def _map_errors(func, errors):
-    """Map a function `f` across a list of `errors` (numbers or tuples of numbers)."""
+def _map_recursive(func, data):
+    """
+    Map a function `f` across elements in some non-uniform nested structure of iterables.
+    """
     ret = []
-    for error in errors:
-        try:
-            upper, lower = error
-            ret.append((func(upper), func(lower)))
-        except TypeError:
-            ret.append(func(error))
+    for datum in data:
+        if isinstance(datum, Sequence):
+            ret.append(_map_recursive(func, datum))
+        else:
+            ret.append(func(datum))
 
-    return ret
+    return type(data)(ret)
 
 
 def _join_numbers(formatted_numbers, abbreviate, latex, exponent=0):
@@ -170,7 +173,7 @@ def _normalize(value, errors):
 
     return (
         value / 10**exponent,
-        _map_errors(lambda error: error / 10**exponent, errors),
+        _map_recursive(lambda error: error / 10**exponent, errors),
         exponent,
     )
 
@@ -278,17 +281,17 @@ def format_multiple_errors(
 
     if first_digit_index + 1 >= significant_figures and not exponential:
         # We don't need decimals
-        formatted_numbers = _map_errors(
+        formatted_numbers = _map_recursive(
             lambda value: str(int(round(value, decimal_places))),
             all_values,
         )
     elif abbreviate:
-        formatted_errors = _map_errors(
+        formatted_errors = _map_recursive(
             lambda error: _abbreviate_single_error(error, decimal_places), errors
         )
         formatted_numbers = [f"{value:.0{decimal_places}f}"] + formatted_errors
     else:
-        formatted_numbers = _map_errors(
+        formatted_numbers = _map_recursive(
             lambda error: _unabbreviated_single_error(error, decimal_places), all_values
         )
 
