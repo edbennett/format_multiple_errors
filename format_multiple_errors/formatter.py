@@ -16,7 +16,7 @@ def format_multiple_errors(
     abbreviate=False,
     exponential=False,
     latex=False,
-):
+):  # pylint: disable=r0913
     """Formats the value and errors consistently.
 
     Parameters:
