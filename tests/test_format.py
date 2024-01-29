@@ -288,9 +288,7 @@ def test_normalize(exponent):
     expect_errors = [0.01, (0.123, 0.234), 0.49]
 
     value = expect_value * 10**exponent
-    errors = formatter._map_recursive(
-        lambda error: error * 10**exponent, expect_errors
-    )
+    errors = formatter._map_recursive(lambda error: error * 10**exponent, expect_errors)
 
     assert formatter._normalize(value, errors) == (
         pytest.approx(expect_value),
