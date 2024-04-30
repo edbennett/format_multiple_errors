@@ -1,6 +1,8 @@
 # See https://pre-commit.com for more information
 default_language_version:
   python: python3.10
+ci:
+    skip: [pylint]
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
