@@ -3,6 +3,7 @@
 """Functions to assist with formatting errors in Pandas DataFrames."""
 
 from dataclasses import dataclass
+from typing import cast
 import warnings
 
 try:
@@ -13,7 +14,7 @@ except ImportError:
 from .formatter import format_multiple_errors
 
 
-def _format_column(value, *errors, **fme_kwargs):
+def _format_column(value: pd.Series, *errors: pd.Series, **fme_kwargs) -> pd.Series:
     """Formats the values and errors in a list of columns consistently.
 
     Parameters:
@@ -51,7 +52,7 @@ def _format_column(value, *errors, **fme_kwargs):
     return pd.Series(data=formatted_errors, index=index)
 
 
-def _tuplify(columns):
+def _tuplify(columns: list[pd.Series]) -> pd.Series:
     """
     Turn columns into one column of tuples.
     Given a list of Pandas Series, returns a single Series
@@ -71,7 +72,12 @@ def _tuplify(columns):
     return pd.Series(data=values, index=index)
 
 
-def format_column_errors(value, *errors, df=None, **fme_kwargs):
+def format_column_errors(
+    value: str | pd.Series,
+    *errors: str | pd.Series,
+    df: pd.DataFrame | None = None,
+    **fme_kwargs,
+):
     """Formats the values and errors in a DataFrame consistently.
 
     Parameters:
@@ -98,6 +104,8 @@ def format_column_errors(value, *errors, df=None, **fme_kwargs):
     """
 
     if df is None:
+        value = cast(pd.Series, value)
+        errors = cast(tuple[pd.Series], errors)
         return _format_column(value, *errors, **fme_kwargs)
 
     if not isinstance(value, str):
@@ -129,7 +137,7 @@ class ColumnSpec:
     Specification of columns to include in calls to `format_dataframe_errors()`
     """
 
-    def __init__(self, value, *errors, name=None, **fme_kwargs):
+    def __init__(self, value: str, *errors: str, name: str | None = None, **fme_kwargs):
         """
         Specify a set of columns to turn into a single column containing formatted
         values and uncertainties.
@@ -163,7 +171,9 @@ class ColumnSpec:
             self.name = value
 
 
-def format_dataframe_errors(df, columns, **fme_kwargs):
+def format_dataframe_errors(
+    df: pd.DataFrame, columns: list[str], **fme_kwargs
+) -> pd.DataFrame:
     """
     Formats groups of columns in a DataFrame into strings with errors.
 
