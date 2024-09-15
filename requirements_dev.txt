@@ -1,4 +1,6 @@
+mypy
 pandas
+pandas-stubs
 pre-commit
 pyerrors
 pytest

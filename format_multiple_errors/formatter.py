@@ -2,21 +2,25 @@
 
 """Implementation of multiple error formatting."""
 
-from collections.abc import Sequence
+from collections.abc import Sequence, Set
 
 # It would be nice to vectorise this with numpy, but that needs more clever thinking.
 import math
 
+from typing import Callable, TypeVar
+
+from .typing import Value, Error, Errors
+
 
 def format_multiple_errors(
-    value,
-    *errors,
-    length_control="smallest",
-    significant_figures=2,
-    abbreviate=False,
-    exponential=False,
-    latex=False,
-):  # pylint: disable=r0913
+    value: Value,
+    *errors: Error,
+    length_control: str = "smallest",
+    significant_figures: int = 2,
+    abbreviate: bool = False,
+    exponential: bool = False,
+    latex: bool = False,
+) -> str:  # pylint: disable=r0913
     """Formats the value and errors consistently.
 
     Parameters:
@@ -53,24 +57,30 @@ def format_multiple_errors(
         Format the numbers in LaTeX form rather than plain text.
     """
 
-    value, errors = _normalize_integrated_errors(value, list(errors))
+    normalised_value, normalised_errors = _normalize_integrated_errors(
+        value, list(errors)
+    )
     exponent = 0
     if exponential:
-        value, errors, exponent = _normalize(value, errors)
+        normalised_value, normalised_errors, exponent = _normalize(
+            normalised_value, normalised_errors
+        )
 
-    length_value = _get_length_value(value, errors, length_control)
+    length_value = _get_length_value(
+        normalised_value, normalised_errors, length_control
+    )
     first_digit_index, decimal_places = _get_rounding_indices(
         length_value, significant_figures
     )
 
     if _decimals_required(first_digit_index, significant_figures, exponential):
-        formatted_numbers = [f"{value:.0{decimal_places}f}"] + _format_errors_only(
-            errors, decimal_places, abbreviate
+        formatted_numbers = [f"{normalised_value:.0{decimal_places}f}"] + list(
+            _format_errors_only(normalised_errors, decimal_places, abbreviate)
         )
     else:
         formatted_numbers = _map_recursive(
-            lambda value: str(int(round(value, decimal_places))),
-            [value] + list(errors),
+            lambda v: str(int(round(v, decimal_places))),
+            [normalised_value] + list(normalised_errors),
         )
 
     return _join_numbers(
@@ -78,7 +88,9 @@ def format_multiple_errors(
     )
 
 
-def _normalize_integrated_errors(value, errors):
+def _normalize_integrated_errors(
+    value: Value, errors: list[Error]
+) -> tuple[float, Errors]:
     """Take any errors already included in `value` and prepends them to `errors`.
 
     Parameters:
@@ -107,7 +119,7 @@ def _normalize_integrated_errors(value, errors):
     return value, errors
 
 
-def _normalize(value, errors):
+def _normalize(value: Value, errors: Errors) -> tuple[float, Errors, int]:
     """
     Divides `value` and all elements of `errors` by a common power of 10
     such that `value` is in [1, 10).
@@ -139,21 +151,29 @@ def _normalize(value, errors):
     )
 
 
-def _map_recursive(func, data):
+RecursiveMappable = TypeVar("RecursiveMappable", list, tuple)
+
+
+def _map_recursive(func: Callable, data: RecursiveMappable) -> RecursiveMappable:
     """
     Map a function `f` across elements in some non-uniform nested structure of iterables.
     """
-    ret = []
+    to_return = []
     for datum in data:
-        if isinstance(datum, Sequence):
-            ret.append(_map_recursive(func, datum))
+        # Ideally this would be done with isinstance(datum, InstantiableSequence)
+        # where InstantiableSequence is like Sequence, but can be instantiated from
+        # elements as is done below. I haven't got that to work with mypy however.
+        if isinstance(datum, list):
+            to_return.append(_map_recursive(func, datum))
+        elif isinstance(datum, tuple):
+            to_return.append(list(_map_recursive(func, datum)))
         else:
-            ret.append(func(datum))
+            to_return.append(func(datum))
 
-    return type(data)(ret)
+    return type(data)(to_return)
 
 
-def _first_digit(value):
+def _first_digit(value: float) -> int:
     """
     Return the first digit position of the given value, as an integer.
     0 is the digit just before the decimal point. Digits to the right
@@ -166,7 +186,7 @@ def _first_digit(value):
     return int(math.floor(math.log10(abs(value))))
 
 
-def _get_length_value(value, errors, length_control):
+def _get_length_value(value: float, errors: Errors, length_control: str) -> float:
     """
     Get the value that will be controlling the length,
     from either the central `value` or the list of `errors`.
@@ -187,7 +207,7 @@ def _get_length_value(value, errors, length_control):
     )
 
 
-def _get_smallest(errors):
+def _get_smallest(errors: Errors) -> float | None:
     """Given a list of errors (number or tuples of two numbers),
     find the smallest number."""
     flat_errors = _flatten_errors(errors, exclude=[0, 0.0])
@@ -197,14 +217,14 @@ def _get_smallest(errors):
     return min(flat_errors)
 
 
-def _flatten_errors(errors, exclude=frozenset()):
+def _flatten_errors(errors: Errors, exclude: Set | Sequence = frozenset()) -> list:
     """Given a list of errors (number or tuples of two numbers),
     flatten it to a list of numbers."""
 
     flat_errors = []
     for error in errors:
         try:
-            for value in error:
+            for value in error:  # type: ignore[union-attr]
                 if value not in exclude:
                     flat_errors.append(value)
         except (TypeError, ValueError):
@@ -214,7 +234,9 @@ def _flatten_errors(errors, exclude=frozenset()):
     return flat_errors
 
 
-def _get_rounding_indices(length_value, significant_figures):
+def _get_rounding_indices(
+    length_value: float, significant_figures: int
+) -> tuple[int, int]:
     """
     Get the index of the first digit of length_value,
     and from it the number of decimal places corresponding to the
@@ -231,14 +253,18 @@ def _get_rounding_indices(length_value, significant_figures):
     return first_digit_index, decimal_places
 
 
-def _decimals_required(first_digit_index, significant_figures, exponential):
+def _decimals_required(
+    first_digit_index: int, significant_figures: int, exponential: bool
+) -> bool:
     """
     Determine whether a decimal point is needed to represent a number to a particular precision.
     """
     return first_digit_index + 1 < significant_figures or exponential
 
 
-def _format_errors_only(errors, decimal_places, abbreviate):
+def _format_errors_only(
+    errors: Errors, decimal_places: int, abbreviate: bool
+) -> list[str]:
     """
     Return a list of `errors` formatted to the specified number of `decimal_places`.
     If `abbreviate` is specified, format only the portion of the number needed
@@ -251,7 +277,7 @@ def _format_errors_only(errors, decimal_places, abbreviate):
     )
 
 
-def _abbreviated_single_error(error, decimal_places):
+def _abbreviated_single_error(error: float, decimal_places: int) -> str:
     """
     Take a single `error` and return its correct abbreviation
     to the given number of `decimal_places`.
@@ -262,7 +288,7 @@ def _abbreviated_single_error(error, decimal_places):
     return str(int(round(error * 10**decimal_places)))
 
 
-def _unabbreviated_single_error(error, decimal_places):
+def _unabbreviated_single_error(error: float, decimal_places: int) -> str:
     """
     Take a single `error` and return its correct unabbreviated format
     to the given number of `decimal_places`.
@@ -278,7 +304,9 @@ def _unabbreviated_single_error(error, decimal_places):
     return f"{rounded_error:.0{decimal_places}f}"
 
 
-def _join_numbers(formatted_numbers, abbreviate, latex, exponent=0):
+def _join_numbers(
+    formatted_numbers: list[str], abbreviate: bool, latex: bool, exponent: int = 0
+) -> str:
     """Take a list of `formatted_numbers`, and join them to form a full formatted string."""
 
     # Dict indexed by the tuple (abbreviate, latex, [is single-component])
@@ -293,7 +321,7 @@ def _join_numbers(formatted_numbers, abbreviate, latex, exponent=0):
         (False, False, False): " (+{error[0]} / -{error[1]})",
     }
 
-    elements = formatted_numbers[:1]
+    elements = list(formatted_numbers[:1])
     for error in formatted_numbers[1:]:
         elements.append(
             formatters[abbreviate, latex, isinstance(error, str)].format(error=error)
