@@ -57,7 +57,7 @@ def _format_column(value: pd.Series, *errors: pd.Series, **fme_kwargs) -> pd.Ser
     return pd.Series(data=formatted_errors, index=index)
 
 
-def _tuplify(columns: list[pd.Series]) -> pd.Series:
+def _tuplify(columns: list[pd.Series] | tuple[pd.Series]) -> pd.Series:
     """
     Turn columns into one column of tuples.
     Given a list of Pandas Series, returns a single Series
