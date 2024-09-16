@@ -19,9 +19,11 @@ To install, open a terminal and run:
     pip install https://github.com/edbennett/format_multiple_errors
 
 
-## Usage
+## Usage as a library
 
-The `format_multiple_errors` package provides a single function,
+### Formatting numbers
+
+The `format_multiple_errors` package provides a function to format numbers,
 also named `format_multiple_errors`.
 
     from format_multiple_errors import format_multiple_errors
@@ -78,7 +80,31 @@ These options may be combined:
     '1.2345(314)({}^{282}_{1291}) \\times 10^{2}'
 
 
-## Interaction with `pyerrors` and `uncertainties`
+### Formatting DataFrames
+
+The library provides two functions for working with Pandas DataFrames.
+
+The `format_column_errors` function accepts and returns columns.
+For example,
+it can take `pd.Series` objects:
+
+    >>> import pandas as pd
+    >>> from format_multiple_errors import format_column_errors
+    >>> df = pd.DataFrame([{"a": 3.14, "b": 0.59, "c": 0.26}, {"a": 2.17, "b": 0.82, "c":   0.81}])
+    >>> format_column_errors(df["a"], (df["b"], df["c"]), abbreviate=True)
+    0    3.14(+59/-26)
+    1    2.17(+82/-81)
+    dtype: object
+
+It can also take a `pd.DataFrame` and specifications of the column names to use:
+
+    >>> format_column_errors("a", ("b", "c"), df=df, abbreviate=True)
+    0    3.14(+59/-26)
+    1    2.17(+82/-81)
+    dtype: object
+
+
+### Interaction with `pyerrors` and `uncertainties`
 
 If the central value passed to `format_multiple_errors` already has an uncertainty,
 due to being an instance of `pyerrors.Obs` or `uncertainties.UFloat`,
@@ -95,6 +121,35 @@ Instances of `pyerrors.Obs` must already have an uncertainty computed
 (must have had the `.gamma_method()` method called on them)
 before being passed to `format_multiple_errors`,
 otherwise an error is raised.
+
+
+## Command-line interface
+
+A command-line interface is also provided.
+To format a single number,
+use the `format_multiple_errors format` command:
+
+    $ format_multiple_errors --abbreviate format 3.141 0.059 0.026,0.053
+    3.141(59)(+26/-53)
+
+To format a CSV as a LaTeX table,
+use the `format_multiple_errors table` command:
+
+    $ format_multiple_errors --latex --abbreviate table input.csv \
+    > a b c_value,c_error d_value,d_upper-d_lower,d_systematic \
+    > --headings '$a$' '$b$' '$c$' '$d$' --output_file output.tex
+    $ cat output.tex
+    \begin{tabular}{rrll}
+    \toprule
+    $a$ & $b$ & $c$ & $d$ \\
+    \midrule
+    3 & 1 & $4.16(26)$ & $3.59({}^{79}_{24})(46)$ \\
+    2 & 7 & $1.83(18)$ & $8.459({}^{45}_{235})(360)$ \\
+    \bottomrule
+    \end{tabular}
+
+Formatting options are specified before the subcommand (`format` or `table`).
+Options specific to the command are specified afterwards.
 
 
 ## Development
