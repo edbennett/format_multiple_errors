@@ -2,6 +2,8 @@
 
 """Implementation of multiple error formatting."""
 
+from __future__ import annotations
+
 from collections.abc import Sequence, Set
 
 # It would be nice to vectorise this with numpy, but that needs more clever thinking.

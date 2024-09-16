@@ -2,6 +2,8 @@
 
 """Functions to assist with formatting errors in Pandas DataFrames."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import cast
 import warnings
