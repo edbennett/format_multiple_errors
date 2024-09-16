@@ -131,7 +131,7 @@ def test_format_dataframe_columnspecs(df):
         "b",
         ColumnSpec("c_value", "c_error", name="c", abbreviate=True),
         ColumnSpec(
-            "d_value", "d_asymmetric", "d_systematic", name="d", abbreviate=True
+            "d_value", ("d_upper", "d_lower"), "d_systematic", name="d", abbreviate=True
         ),
     ]
     result = format_dataframe_errors(df, columns, abbreviate=False)

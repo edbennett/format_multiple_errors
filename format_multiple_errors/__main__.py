@@ -10,8 +10,10 @@ from sys import exit, stderr
 
 try:
     import pandas as pd
+
+    have_pandas = True
 except ImportError:
-    pd = None
+    have_pandas = False
 
 from .formatter import format_multiple_errors
 from .pandas import format_dataframe_errors, ColumnSpec
@@ -34,7 +36,7 @@ def _format_numbers(args: Namespace) -> None:
 
 def _check_pandas() -> None:
     """Check if Pandas is available; complain and exit if not."""
-    if pd is None:
+    if not have_pandas:
         print(
             "Pandas is not installed, but is required to process a table.",
             file=stderr,
@@ -76,7 +78,7 @@ def _float_or_pair(arg: str) -> float | tuple[float, float]:
     if len(split_arg) == 1:
         return float(arg)
     elif len(split_arg) == 2:
-        return tuple(map(float, split_arg))
+        return (float(split_arg[0]), float(split_arg[1]))
     else:
         message = f"Can't parse {arg} as a number or pair of numbers."
         raise ValueError(message)
@@ -94,13 +96,19 @@ def _parse_columnspec(arg: str) -> str | ColumnSpec:
     if not isinstance(split_arg[0], str):
         raise ValueError("First column has to be a single central value.")
 
-    error_columns = []
+    error_columns: list[str | tuple[str, str]] = []
     for error_spec in split_arg[1:]:
         split_error = error_spec.split("-")
         if len(split_error) == 1:
             error_columns.append(error_spec)
+        elif len(split_error) == 2:
+            error_columns.append((split_error[0], split_error[1]))
         else:
-            error_columns.append(tuple(split_error))
+            message = (
+                f"Expected one or two components in error_spec {error_spec}, "
+                f"found {len(split_error)}."
+            )
+            raise ValueError(message)
 
     return ColumnSpec(split_arg[0], *error_columns)
 

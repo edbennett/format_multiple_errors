@@ -142,7 +142,13 @@ class ColumnSpec:
     Specification of columns to include in calls to `format_dataframe_errors()`
     """
 
-    def __init__(self, value: str, *errors: str, name: str | None = None, **fme_kwargs):
+    def __init__(
+        self,
+        value: str,
+        *errors: str | tuple[str, str],
+        name: str | None = None,
+        **fme_kwargs,
+    ):
         """
         Specify a set of columns to turn into a single column containing formatted
         values and uncertainties.
