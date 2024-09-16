@@ -23,6 +23,7 @@ def fixture_dataframe():
                 "c_value": 4.159,
                 "c_error": 0.265,
                 "c": "4.16(26)",
+                "$c$": "$4.16 \\pm 0.27$",
                 "d_value": 3.589,
                 "d_upper": 0.793,
                 "d_lower": 0.238,
@@ -36,6 +37,7 @@ def fixture_dataframe():
                 "c_value": 1.828,
                 "c_error": 0.182,
                 "c": "1.83(18)",
+                "$c$": "$1.83 \\pm 0.18$",
                 "d_value": 8.459,
                 "d_upper": 0.045,
                 "d_lower": 0.235,
@@ -54,6 +56,12 @@ def test_format_column_names(df):
         "d_value", ("d_upper", "d_lower"), "d_systematic", df=df, abbreviate=True
     )
     assert result.equals(df["d"])
+
+
+def test_format_column_latex(df):
+    """Test that formatting a Series with LaTeX errors correctly fences the result."""
+    result = format_column_errors("c_value", "c_error", df=df, latex=True)
+    assert result.equals(df["$c$"])
 
 
 def test_format_column_names_tuple(df):

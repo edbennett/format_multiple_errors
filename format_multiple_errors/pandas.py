@@ -48,9 +48,12 @@ def _format_column(value: pd.Series, *errors: pd.Series, **fme_kwargs) -> pd.Ser
     formatted_errors = []
     for single_index, single_value, *single_errors in df.itertuples():
         index.append(single_index)
-        formatted_errors.append(
-            format_multiple_errors(single_value, *single_errors, **fme_kwargs)
-        )
+        number = format_multiple_errors(single_value, *single_errors, **fme_kwargs)
+        if fme_kwargs.get("latex"):
+            formatted_errors.append(f"${number}$")
+        else:
+            formatted_errors.append(number)
+
     return pd.Series(data=formatted_errors, index=index)
 
 
