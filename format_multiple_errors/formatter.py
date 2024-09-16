@@ -340,9 +340,3 @@ def _join_numbers(
             elements.append(f"e{exponent}")
 
     return "".join(elements)
-
-
-if __name__ == "__main__":
-    print(
-        format_multiple_errors(12345.0, 10, (22, 36), 255, abbreviate=True, latex=False)
-    )
