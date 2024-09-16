@@ -19,6 +19,9 @@ classifiers = [
 "Homepage" = "https://github.com/edbennett/format_multiple_errors"
 "Bug Tracker" = "https://github.com/edbennett/format_multiple_errors/issues"
 
+[project.scripts]
+format_multiple_errors = "format_multiple_errors.__main__:cli"
+
 [tool.coverage.report]
 exclude_lines = [
     "if __name__ == .__main__.:"
