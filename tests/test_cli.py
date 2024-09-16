@@ -4,6 +4,8 @@ import pytest
 
 from format_multiple_errors.__main__ import cli
 
+from test_pandas import fixture_dataframe  # noqa: F401
+
 
 @pytest.fixture(name="df_file")
 def fixture_dataframe_file(tmpdir_factory, df):
@@ -34,7 +36,7 @@ def test_cli_number_exponential(capsys):
     cli(["--exponential", "--latex", "format", *number])
 
     output = capsys.readouterr()
-    assert output.out == "(3.141 \pm 0.059 {}^{+0.026}_{-0.535}) \\times 10^{1}\n"
+    assert output.out == "(3.141 \\pm 0.059 {}^{+0.026}_{-0.535}) \\times 10^{1}\n"
 
 
 @pytest.fixture(name="output_text")
