@@ -4,8 +4,8 @@ from typing import Union, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from pyerrors import Obs  # type: ignore
-    from uncertainties import UFloat  # type: ignore
+    from pyerrors import Obs  # type: ignore[import-untyped]
+    from uncertainties import UFloat  # type: ignore[import-untyped]
 
     Value = Union[float, Obs, UFloat]
 else:
