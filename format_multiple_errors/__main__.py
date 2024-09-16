@@ -151,7 +151,7 @@ def get_args(override_args: list | None = None) -> Namespace:
         "table", help="Format a CSV file into a LaTeX table"
     )
     table_parser.add_argument(
-        "input_file", type=FileType("r"), help="The CSV file to read in"
+        "input_file", type=FileType("r"), default="-", help="The CSV file to read in"
     )
     table_parser.add_argument(
         "--output_file",
