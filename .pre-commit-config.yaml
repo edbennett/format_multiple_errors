@@ -22,3 +22,11 @@ repos:
     hooks:
     -   id: markdownlint
         files: "content/"
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.11.2'
+    hooks:
+    -   id: mypy
+      # Ideally run in strict mode usually but we can only do it after we have
+      # type annotations consistently everywhere. We should later add:
+      #args: [--strict, --ignore-missing-imports]
+      # second is default that needs to be reproduced with explicitly given args
