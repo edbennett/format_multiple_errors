@@ -14,9 +14,16 @@ $$(6.829 \pm 0.013 {}^{+0.104}_{-0.096})\times10^{5}$$
 
 ## Installation
 
-To install, open a terminal and run:
+To install the bare library, open a terminal and run:
 
-    pip install https://github.com/edbennett/format_multiple_errors
+    pip install format-multiple-errors
+
+If you will be formatting tables,
+additional dependencies are required.
+To install these,
+instead run
+
+    pip install format-multiple-errors[tables]
 
 
 ## Usage as a library

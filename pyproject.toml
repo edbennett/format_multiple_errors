@@ -22,6 +22,9 @@ classifiers = [
 [project.scripts]
 format_multiple_errors = "format_multiple_errors.__main__:cli"
 
+[project.optional-dependencies]
+tables = ["pandas", "jinja2"]
+
 [tool.coverage.report]
 exclude_lines = [
     "if __name__ == .__main__.:"
