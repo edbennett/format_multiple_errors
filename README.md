@@ -1,7 +1,7 @@
 # format_multiple_errors
 
 [![Run tests](https://github.com/edbennett/format_multiple_errors/actions/workflows/pytest.yaml/badge.svg)](https://github.com/edbennett/format_multiple_errors/actions/workflows/pytest.yaml)
-[![Code quality](https://github.com/edbennett/format_multiple_errors/actions/workflows/codequality.yaml/badge.svg)](https://github.com/edbennett/format_multiple_errors/actions/workflows/codequality.yaml)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/edbennett/format_multiple_errors/main.svg)](https://results.pre-commit.ci/latest/github/edbennett/format_multiple_errors/main)
 
 A small library intended to make it easy to format numbers like
 
