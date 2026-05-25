@@ -43,6 +43,8 @@ def format_multiple_errors(
                         with `significant_figures` significant figures.
             "central": The central `value` is printed
                        with `significant_figures` significant figures.
+            "largest": The largest uncertainty is printed
+                       with `significant_figures` significant figures.
 
     significant_figures (default: 2):
         The number of significant figures to format.
@@ -202,10 +204,16 @@ def _get_length_value(value: float, errors: Errors, length_control: str) -> floa
             return value
 
         return length
+    if length_control == "largest":
+        length = _get_largest(errors)
+        if length is None:
+            return value
+
+        return length
 
     raise ValueError(
         f"{length_control} is not a value option for length_control."
-        '(Available options are "smallest", "central".)'
+        '(Available options are "smallest", "central", "largest".)'
     )
 
 
@@ -217,6 +225,17 @@ def _get_smallest(errors: Errors) -> float | None:
         return None
 
     return min(flat_errors)
+
+
+def _get_largest(errors: Errors) -> float | None:
+    """Given a list of errors (number or tuples of two numbers),
+    find the largest finite number."""
+    flat_errors = _flatten_errors(errors, exclude=[0, 0.0])
+    if not flat_errors:
+        return None
+    finite_flat_errors = [error for error in flat_errors if math.isfinite(error)]
+
+    return max(finite_flat_errors)
 
 
 def _flatten_errors(errors: Errors, exclude: Set | Sequence = frozenset()) -> list:

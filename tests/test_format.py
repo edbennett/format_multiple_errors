@@ -7,6 +7,7 @@
 
 from collections import namedtuple
 from functools import partial
+import math
 
 import pytest
 
@@ -113,6 +114,21 @@ decimal_tests = [
     ),
     SmallTestCase(abbreviate=True, expect=r"0.001234(679)(+101/-12)"),
     SmallTestCase(expect=r"0.001234 ± 0.000679 (+0.000101 / -0.000012)"),
+    SmallTestCase(
+        length_control="largest", expect=r"0.00123 ± 0.00068 (+0.00010 / -0.00001)"
+    ),
+    SmallTestCase(
+        length_control="largest",
+        significant_figures=1,
+        expect=r"0.0012 ± 0.0007 (+0.0001 / -0.0)",
+    ),
+    SmallTestCase(
+        length_control="largest",
+        abbreviate=True,
+        latex=True,
+        significant_figures=1,
+        expect=r"0.0012(7)({}^{1}_{0})",
+    ),
     LargeTestCase(
         length_control="central",
         abbreviate=True,
@@ -348,6 +364,16 @@ def test_ufloat():
             ufloat(1.234, 0.012), (0.034, 0.056), significant_figures=2, abbreviate=True
         )
         == "1.234(12)(+34/-56)"
+    )
+
+
+def test_infinite_length_control_largest():
+    """Test that length_control="largest" works correctly when an error is infinite"""
+    assert (
+        format_multiple_errors(
+            0.1234, 0.056, math.inf, 0.007, length_control="largest", abbreviate=True
+        )
+        == "0.123(56)(inf)(7)"
     )
 
 
