@@ -230,12 +230,11 @@ def _get_smallest(errors: Errors) -> float | None:
 def _get_largest(errors: Errors) -> float | None:
     """Given a list of errors (number or tuples of two numbers),
     find the largest finite number."""
-    flat_errors = _flatten_errors(errors, exclude=[0, 0.0])
+    flat_errors = _flatten_errors(errors, exclude=[math.inf])
     if not flat_errors:
         return None
-    finite_flat_errors = [error for error in flat_errors if math.isfinite(error)]
 
-    return max(finite_flat_errors)
+    return max(flat_errors)
 
 
 def _flatten_errors(errors: Errors, exclude: Set | Sequence = frozenset()) -> list:
