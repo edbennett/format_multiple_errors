@@ -167,6 +167,15 @@ exponential_tests = [
     SmallExpTestCase(
         length_control="central", abbreviate=True, expect=r"1.2(7)(+1/-0)e-3"
     ),
+    SmallExpTestCase(
+        length_control="decimal_places", abbreviate=True, expect=r"1.23(68)(+10/-1)e-3"
+    ),
+    SmallExpTestCase(
+        length_control="decimal_places",
+        significant_figures=1,
+        abbreviate=True,
+        expect=r"1.2(7)(+1/-0)e-3",
+    ),
     SmallExpTestCase(length_control="central", expect=r"(1.2 ± 0.7 (+0.1 / -0.0))e-3"),
     SmallExpTestCase(
         abbreviate=True,
@@ -201,6 +210,10 @@ exponential_tests = [
     ),
     MedExpTestCase(abbreviate=True, expect=r"1.2345(67)(+89/-1011)(1.2131)"),
     MedExpTestCase(expect=r"1.2345 ± 0.0067 (+0.0089 / -0.1011) ± 1.2131"),
+    MedExpTestCase(
+        length_control="decimal_places",
+        expect=r"1.23 ± 0.01 (+0.01 / -0.10) ± 1.21",
+    ),
     LargeExpTestCase(
         length_control="central",
         abbreviate=True,

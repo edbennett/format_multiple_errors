@@ -45,6 +45,8 @@ def format_multiple_errors(
                        with `significant_figures` significant figures.
             "largest": The largest uncertainty is printed
                        with `significant_figures` significant figures.
+            "decimal_places": Values are truncated to `significant_figures`
+                              decimal places.
 
     significant_figures (default: 2):
         The number of significant figures to format.
@@ -70,14 +72,23 @@ def format_multiple_errors(
             normalised_value, normalised_errors
         )
 
-    length_value = _get_length_value(
-        normalised_value, normalised_errors, length_control
-    )
-    first_digit_index, decimal_places = _get_rounding_indices(
-        length_value, significant_figures
-    )
+    if length_control == "decimal_places":
+        if significant_figures < 0:
+            raise ValueError("Number of decimal places must be non-negative")
+        decimal_places = significant_figures
+        decimals_required = decimal_places > 0
+    else:
+        length_value = _get_length_value(
+            normalised_value, normalised_errors, length_control
+        )
+        first_digit_index, decimal_places = _get_rounding_indices(
+            length_value, significant_figures
+        )
+        decimals_required = _decimals_required(
+            first_digit_index, significant_figures, exponential
+        )
 
-    if _decimals_required(first_digit_index, significant_figures, exponential):
+    if decimals_required:
         formatted_numbers = [f"{normalised_value:.0{decimal_places}f}"] + list(
             _format_errors_only(normalised_errors, decimal_places, abbreviate)
         )
