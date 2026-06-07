@@ -86,6 +86,12 @@ These options may be combined:
     >>> format_multiple_errors(123.45, 3.14, (2.82, 12.91), length_control="central", significant_figures=5, latex=True, abbreviate=True, exponential=True)
     '1.2345(314)({}^{282}_{1291}) \\times 10^{2}'
 
+Other options for `length_control` are:
+
+- `"largest"`: controls the significant digits of the largest uncertainty
+- `"decimal_places"`: instead sets the absolute number of decimal places,
+  which must be non-negative.
+
 
 ### Formatting DataFrames
 
