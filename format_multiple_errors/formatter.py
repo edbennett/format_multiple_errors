@@ -223,7 +223,7 @@ def _get_length_value(value: float, errors: Errors, length_control: str) -> floa
         return length
 
     raise ValueError(
-        f"{length_control} is not a value option for length_control."
+        f"{length_control} is not a value option for length_control. "
         '(Available options are "smallest", "central", "largest".)'
     )
 
