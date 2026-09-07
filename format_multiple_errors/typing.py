@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-from typing import Union, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from pyerrors import Obs  # type: ignore[import-untyped]

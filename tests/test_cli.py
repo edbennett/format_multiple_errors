@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
 import pytest
+from test_pandas import fixture_dataframe  # noqa: F401
 
 from format_multiple_errors.__main__ import cli
-
-from test_pandas import fixture_dataframe  # noqa: F401
 
 
 @pytest.fixture(name="df_file")

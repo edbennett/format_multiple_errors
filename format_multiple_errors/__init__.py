@@ -9,9 +9,13 @@ from .formatter import format_multiple_errors as format_multiple_errors
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     from .pandas import (
-        format_column_errors as format_column_errors,
-        format_dataframe_errors as format_dataframe_errors,
         ColumnSpec as ColumnSpec,
+    )
+    from .pandas import (
+        format_column_errors as format_column_errors,
+    )
+    from .pandas import (
+        format_dataframe_errors as format_dataframe_errors,
     )
 
 del warnings
