@@ -4,14 +4,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence, Set
-
 # It would be nice to vectorise this with numpy, but that needs more clever thinking.
 import math
-
+from collections.abc import Sequence, Set
 from typing import Callable, TypeVar
 
-from .typing import Value, Error, Errors
+from .typing import Error, Errors, Value
 
 
 def format_multiple_errors(
