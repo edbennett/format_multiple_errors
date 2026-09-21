@@ -5,12 +5,11 @@
 
 """Tests for format_multiple_errors."""
 
+import math
 from collections import namedtuple
 from functools import partial
-import math
 
 import pytest
-
 from pyerrors import Obs
 from uncertainties import ufloat
 
