@@ -4,8 +4,8 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser, FileType, Namespace
 import logging
+from argparse import ArgumentParser, FileType, Namespace
 from sys import exit, stderr
 
 try:
@@ -16,7 +16,7 @@ except ImportError:
     have_pandas = False
 
 from .formatter import format_multiple_errors
-from .pandas import format_dataframe_errors, ColumnSpec
+from .pandas import ColumnSpec, format_dataframe_errors
 
 
 def _format_numbers(args: Namespace) -> None:
