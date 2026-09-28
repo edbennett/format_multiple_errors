@@ -6,9 +6,9 @@ import pandas as pd
 import pytest
 
 from format_multiple_errors import (
-    format_dataframe_errors,
     ColumnSpec,
     format_column_errors,
+    format_dataframe_errors,
 )
 
 
